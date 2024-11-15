@@ -16,6 +16,10 @@ typedef struct {
 Flight flights[MAX_FLIGHTS];
 int flightCount = 0;
 
+void clearInputBuffer() {
+    while (getchar() != '\n'); 
+}
+
 void choiceMenu(){
 	printf("\n--- Flight Management System ---\n");
     printf("1. Add Flight\n");
@@ -33,30 +37,47 @@ void flight(){
     }
 
     Flight flight;
+    
     printf("Enter flight number: ");
     scanf("%d", &flight.flightNumber);
+    clearInputBuffer(); 
+
     printf("Enter airline name: ");
-    scanf(" %[^\n]s", flight.airline);
+    fgets(flight.airline, sizeof(flight.airline), stdin);
+    flight.airline[strcspn(flight.airline, "\n")] = '\0'; 
+
     printf("Enter departure location: ");
-    scanf(" %[^\n]s", flight.departure);
+    fgets(flight.departure, sizeof(flight.departure), stdin);
+    flight.departure[strcspn(flight.departure, "\n")] = '\0';
+
     printf("Enter arrival location: ");
-    scanf(" %[^\n]s", flight.arrival);
+    fgets(flight.arrival, sizeof(flight.arrival), stdin);
+    flight.arrival[strcspn(flight.arrival, "\n")] = '\0';
+
     printf("Enter date (DD/MM/YYYY): ");
-    scanf(" %[^\n]s", flight.date);
+    fgets(flight.date, sizeof(flight.date), stdin);
+    flight.date[strcspn(flight.date, "\n")] = '\0';
+
     printf("Enter time (HH:MM): ");
-    scanf(" %[^\n]s", flight.time);
+    fgets(flight.time, sizeof(flight.time), stdin);
+    flight.time[strcspn(flight.time, "\n")] = '\0';
+
     printf("Enter number of available seats: ");
     scanf("%d", &flight.seatsAvailable);
+    clearInputBuffer(); 
 
     flights[flightCount++] = flight;
     printf("Flight added successfully!\n");
 }
 
+    
+
 int main() {
     int choice;
     char user[20];
     printf("Are you an admin or a passenger? ");
-    scanf("%[^\n]s",user);
+    fgets(user, sizeof(user), stdin);
+    user[strcspn(user, "\n")] = '\0';
     choiceMenu();
     scanf("%d", &choice);
     if (strcmp(user, "admin") == 0){
