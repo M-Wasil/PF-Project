@@ -21,7 +21,7 @@ void clearInputBuffer() {
 }
 
 void choiceMenu(){
-	printf("\n--- Flight Management System ---\n");
+    printf("\n--- Flight Management System ---\n");
     printf("1. Add Flight\n");
     printf("2. Display Flights\n");
     printf("3. Search Flight\n");
@@ -34,7 +34,7 @@ void flight(){
 	if (flightCount >= MAX_FLIGHTS) {
         printf("Flight limit reached! Cannot add more flights.\n");
         return;
-    }
+       }
 
     Flight flight;
     
