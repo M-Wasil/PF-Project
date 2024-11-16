@@ -4,14 +4,20 @@
 
 #define MAX_FLIGHTS 20
 
+typedef struct{
+	int day;
+	int month;
+	int year;
+} date;
+
 typedef struct {
     int flightNumber;
     char airline[50];
     char departure[50];
     char arrival[50];
-    char date[20];
     char time[10];
     int seatsAvailable;
+    date flightdate;
 } Flight;
 
 typedef struct{
@@ -64,12 +70,51 @@ void start()
 	printf("\n\t\t\t        =                 WELCOME                   =");
 	printf("\n\t\t\t        =                   TO                      =");
 	printf("\n\t\t\t        =                 FLIGHT                    =");
-	printf("\n\t\t\t        =               MANAGEMENT                  =");
+	printf("\n\t\t\t        =               MANAGEMENT                  ="); 
 	printf("\n\t\t\t        =                 SYSTEM                    =");
 	printf("\n\t\t\t        =============================================");
 	printf("\n\n\t\t\t  ********************\n");
 	printf("\n\n\n\t\t\t Press Enter to continue.....");
-	getch(); // this will pause the program until the user has pressed some key on the keyboard
+	getch(); 
+}
+
+void goodbye() {
+	printf("\n\n\n\n\n\n\n\n\n");
+	printf("\t\t\t                                  xxx\n");
+	printf("\t\t\t                                xxxxxxx\n");
+	printf("\t\t\t                            xxxxxxxxxxxxxxx\n");
+	printf("\t\t\t                        xxxxxxxxxxxxxxxxxxxxxxx\n");
+	printf("\t\t\t                    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+	printf("\t\t\t                xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+	printf("\t\t\t            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+	printf("\t\t\t        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+	printf("\t\t\t    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+	printf("\t\t\txxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+	printf("\t\t\t                 THANK YOU FOR CHOOSING HEATHROW AIRPORT\n");
+	printf("\t\t\t                        Please come again soon\n");
+	printf("\t\t\txxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+	printf("\t\t\t    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+	printf("\t\t\t        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+	printf("\t\t\t            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+	printf("\t\t\t                xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+	printf("\t\t\t                    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+	printf("\t\t\t                        xxxxxxxxxxxxxxxxxxxxxxx\n");
+	printf("\t\t\t                            xxxxxxxxxxxxxxx\n");
+	printf("\t\t\t                                xxxxxxx\n");
+	printf("\t\t\t                                  xxx\n");
+}
+
+void printFlightDetails(Flight *flight) {
+    printf("\t\t\tFlight Number: %d\n", flight->flightNumber);
+    printf("\t\t\tAirline: %s\n", flight->airline);
+    printf("\t\t\tDeparture: %s\n", flight->departure);
+    printf("\t\t\tArrival: %s\n", flight->arrival);
+    printf("\t\t\tDate: %02d/%02d/%04d\n", flight->flightdate.day, flight->flightdate.month, flight->flightdate.year);
+    printf("\t\t\tTime: %s\n", flight->time);
+    printf("\t\t\tSeats Available: %d\n", flight->seatsAvailable);
+    printf("\t\t\tFlight Date: %02d/%02d/%04d\n", flight->flightdate.day, flight->flightdate.month, flight->flightdate.year);
+    printf("press enter to continue\n");
+    getchar();  
 }
 
 void ensureFileExists(const char *filename) {
