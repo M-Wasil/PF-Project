@@ -14,6 +14,31 @@ typedef struct {
     int seatsAvailable;
 } Flight;
 
+typedef struct{
+    int bookingID;                 
+    int flightNumber;              
+    char passengerName[50];        
+    char contactInfo[50];          
+    int seatNumber;                
+    char status[15]; 
+} Booking;
+
+typedef struct{
+    char username[20];             
+    char password[20];             
+} Admin;
+
+typedef struct{
+    
+    char username[20];             
+    char password[20];             
+    char role[10];                 
+}User;
+
+Flight flights[MAX_FLIGHTS];
+Booking bookings[MAX_BOOKINGS];
+User users[MAX_USERS];
+
 Flight flights[MAX_FLIGHTS];
 int flightCount = 0;
 
