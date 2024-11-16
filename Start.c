@@ -109,7 +109,6 @@ void printFlightDetails(Flight *flight) {
     printf("\t\t\tAirline: %s\n", flight->airline);
     printf("\t\t\tDeparture: %s\n", flight->departure);
     printf("\t\t\tArrival: %s\n", flight->arrival);
-    printf("\t\t\tDate: %02d/%02d/%04d\n", flight->flightdate.day, flight->flightdate.month, flight->flightdate.year);
     printf("\t\t\tTime: %s\n", flight->time);
     printf("\t\t\tSeats Available: %d\n", flight->seatsAvailable);
     printf("\t\t\tFlight Date: %02d/%02d/%04d\n", flight->flightdate.day, flight->flightdate.month, flight->flightdate.year);
