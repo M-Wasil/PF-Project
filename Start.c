@@ -42,6 +42,19 @@ User users[MAX_USERS];
 Flight flights[MAX_FLIGHTS];
 int flightCount = 0;
 
+headMessage(const char *title)
+{
+	system("cls");
+	printf("\t\t\t###########################################################################");
+	printf("\n\t\t\t############                                                   ############");
+	printf("\n\t\t\t############            Flight management System              ############");
+	printf("\n\t\t\t############                                                   ############");
+	printf("\n\t\t\t###########################################################################");
+	printf("\n\t\t\t---------------------------------------------------------------------------\n");
+	printf("\t\t\t\t\t\t\t%s", title);
+	printf("\n\t\t\t----------------------------------------------------------------------------");
+}
+
 void clearInputBuffer() {
     while (getchar() != '\n'); 
 }
