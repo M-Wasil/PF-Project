@@ -42,7 +42,7 @@ User users[MAX_USERS];
 Flight flights[MAX_FLIGHTS];
 int flightCount = 0;
 
-headMessage(const char *title)
+void headMessage(const char *title)
 {
 	system("cls");
 	printf("\t\t\t###########################################################################");
@@ -55,10 +55,27 @@ headMessage(const char *title)
 	printf("\n\t\t\t----------------------------------------------------------------------------");
 }
 
+void start()
+{
+	headMessage("PF PROJECT");
+	printf("\n\n\n\n\n");
+	printf("\n\t\t\t  ********************\n");
+	printf("\n\t\t\t        =============================================");
+	printf("\n\t\t\t        =                 WELCOME                   =");
+	printf("\n\t\t\t        =                   TO                      =");
+	printf("\n\t\t\t        =                 FLIGHT                    =");
+	printf("\n\t\t\t        =               MANAGEMENT                  =");
+	printf("\n\t\t\t        =                 SYSTEM                    =");
+	printf("\n\t\t\t        =============================================");
+	printf("\n\n\t\t\t  ********************\n");
+	printf("\n\n\n\t\t\t Press Enter to continue.....");
+	getch(); // this will pause the program until the user has pressed some key on the keyboard
+}
+
 void ensureFileExists(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
-        // File doesn't exist, so create it
+        
         file = fopen(filename, "w");
         if (file != NULL) {
             printf("File '%s' created successfully.\n", filename);
@@ -66,7 +83,7 @@ void ensureFileExists(const char *filename) {
             printf("Error creating file '%s'.\n", filename);
         }
     } else {
-        // File already exists
+
         fclose(file);
     }
 }
@@ -131,9 +148,18 @@ void flight(){
 int main() {
     int choice;
     char user[20];
+    ensureFileExists("admin_passwords.txt");
+    ensureFileExists("destinations.txt");
+    ensureFileExists("bookings.txt");
+    ensureFileExists("canceled_flights.txt");
+
+    printf("All necessary files are ready.\n");
+    
     printf("Are you an admin or a passenger? ");
     fgets(user, sizeof(user), stdin);
     user[strcspn(user, "\n")] = '\0';
+    
+    
     choiceMenu();
     scanf("%d", &choice);
     if (strcmp(user, "admin") == 0){
