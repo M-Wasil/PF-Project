@@ -34,7 +34,7 @@ struct ticket
 }
 
 // designed message to be displayed on start of the program
-headMessage(const char *title)
+void headMessage(const char *title)
 {
 	system("cls");
 	printf("\t\t\t###########################################################################");
@@ -48,7 +48,7 @@ headMessage(const char *title)
 }
 
 // another designed message to be displayed on the start of the program
-start()
+void start()
 {
 	headMessage("PF PROJECT");
 	printf("\n\n\n\n\n");
@@ -66,7 +66,7 @@ start()
 }
 
 // adds a new flight record  to the database
-add()
+void add()
 {
 	FILE *fp;
 	fp = fopen("lms.bin", "ab+"); // opens a binary file
@@ -111,7 +111,7 @@ add()
 }
 
 // id country error corrected for this function
-search() // function to search for data of specific flights by typing in the country
+void search() // function to search for data of specific flights by typing in the country
 {
 	int found = 1;
 	int searchflight;
@@ -154,7 +154,7 @@ search() // function to search for data of specific flights by typing in the cou
 	getchar();
 }
 
-view() // will display all the flghts available and their data
+void view() // will display all the flghts available and their data
 {
 	int found = 0;
 	int count = 1;
@@ -188,7 +188,7 @@ view() // will display all the flghts available and their data
 	getchar();
 }
 
-removeflight() // function to remove a flight record
+void removeflight() // function to remove a flight record
 {
 	int found = 0;
 	int deleteid = 0; // id of the flight record we want to delete
@@ -246,7 +246,7 @@ removeflight() // function to remove a flight record
 }
 
 // id country error corrected in this function as well
-edit() // to edit a flight record
+void edit() // to edit a flight record
 {
 	int found = 1;
 	int editflight; // id number of the file you want to edit
