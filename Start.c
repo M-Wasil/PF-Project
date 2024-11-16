@@ -55,6 +55,23 @@ headMessage(const char *title)
 	printf("\n\t\t\t----------------------------------------------------------------------------");
 }
 
+void ensureFileExists(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        // File doesn't exist, so create it
+        file = fopen(filename, "w");
+        if (file != NULL) {
+            printf("File '%s' created successfully.\n", filename);
+        } else {
+            printf("Error creating file '%s'.\n", filename);
+        }
+    } else {
+        // File already exists
+        fclose(file);
+    }
+}
+
+
 void clearInputBuffer() {
     while (getchar() != '\n'); 
 }
