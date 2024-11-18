@@ -28,13 +28,13 @@ typedef struct{
     char passengerName[50];        
     char contactInfo[50];          
     int seatNumber;                
-    char status[15]; 
+    int status; 
 } Booking;
 
-typedef struct{
-    char username[20];             
-    char password[20];             
-} Admin;
+// typedef struct{
+//     char username[20];             
+//     char password[20];             
+// } Admin;
 
 typedef struct{
     
@@ -148,6 +148,7 @@ void choiceMenu(){
     printf("5. Exit\n");
     printf("Select an option: ");
 }
+
 
 void flight(){
 	if (flightCount >= MAX_FLIGHTS) {
@@ -295,6 +296,101 @@ void verifyPassengerAccount() {
     }
 
     fclose(file); 
+}
+
+void addFlight() {
+    FILE *fp;
+    Flight flightinfo;  
+    ensureFileExists("records.dat");
+    fp = fopen("records.dat", "ab+");
+
+    if (fp == NULL) {
+        printf("\n\t\t\tFile is not opened\n");
+        exit(1);
+    }
+
+    headMessage("ADD flightS");
+    printf("\n\n\t\t\tENTER flight DETAILS BELOW:");
+    printf("\n\t\t\t---------------------------------------------------------------------------\n");
+
+    printf("\n\t\t\tFlight number: ");
+    scanf("%d", &flightinfo.flightNumber);
+    getchar();  
+
+    printf("\n\t\t\tAirline: ");
+    fgets(flightinfo.airline, sizeof(flightinfo.airline), stdin);
+    flightinfo.airline[strcspn(flightinfo.airline, "\n")] = '\0';  
+    
+    printf("\n\t\t\tDeparture: ");
+    fgets(flightinfo.departure, sizeof(flightinfo.departure), stdin);
+    flightinfo.departure[strcspn(flightinfo.departure, "\n")] = '\0'; 
+
+    printf("\n\t\t\tArrival: ");
+    fgets(flightinfo.arrival, sizeof(flightinfo.arrival), stdin);
+    flightinfo.arrival[strcspn(flightinfo.arrival, "\n")] = '\0';  
+
+    printf("\n\t\t\tTime: ");
+    fgets(flightinfo.time, sizeof(flightinfo.time), stdin);
+    flightinfo.time[strcspn(flightinfo.time, "\n")] = '\0';  
+
+    printf("\n\t\t\tSeats Available: ");
+    scanf("%d", &flightinfo.seatsAvailable);
+    getchar(); 
+
+    printf("\n\t\t\tEnter date (dd): ");
+    scanf("%d", &flightinfo.flightdate.day);
+    getchar();  
+
+    printf("\n\t\t\tEnter month (mm): ");
+    scanf("%d", &flightinfo.flightdate.month);
+    getchar();  
+
+    printf("\n\t\t\tEnter year (yyyy): ");
+    scanf("%d", &flightinfo.flightdate.year);
+    getchar();  
+    
+    fwrite(&flightinfo, sizeof(flightinfo), 1, fp);
+    fclose(fp);
+}
+
+void searchFlight() 
+{   FLight flightinfo;
+	int found = 1;
+	int searchflight;
+	FILE *fp = fopen("records.dat", "rb"); 
+
+	
+	if (fp == NULL)
+	{
+		printf("\n\t\t\tFile is not opened\n");
+		exit(1);
+	}
+	headMessage("SEARCH flightS");
+
+	printf("\n\n\t\t\tEnter flight number to search: ");
+	scanf("%d", &searchflight);
+
+	while (fread(&flightinfo, sizeof(flightinfo), 1, fp) == 1)  //fread starts from beginning (note to fellow)
+	{
+		if (flightinfo.flightNumber == searchflight) 
+		{
+			printf("\n\t\t\tflight number = %d\n", flightinfo.flightNumber);
+			printf("\t\t\tflight departure = %s\n", flightinfo.departure);
+            printf("\t\t\tflight arrival = %s\n", flightinfo.arrival);
+			printf("\t\t\t Timings = %s\n", flightinfo.time);
+			printf("\t\t\tIssue date(day/month/year) =  %d/%d/%d\n", flightinfo.flightdate.day,
+				   flightinfo.flightdate.month, flightinfo.flightdate.year);
+			found = 0;
+			break;
+		}
+	}
+	if (found == 1)
+	{
+		printf("\n\t\t\tNo Record");
+	}
+	fclose(fp);
+	printf("\n\n\n\t\t\tPress Enter to go to main menu.....");
+	getchar();
 }
 
 
