@@ -3,6 +3,8 @@
 #include <string.h>
 
 #define MAX_FLIGHTS 20
+#define superAdminUsername "superadmin"
+#define superAdminPassword "S@fep@ssw0rd!"
 
 typedef struct{
 	int day;
@@ -187,22 +189,140 @@ void flight(){
     printf("Flight added successfully!\n");
 }
 
+void verifySuperAdmin() {
     
+    char Password[50];
+    char Username[50];
+    int maxAttempts = 3;
+    int attempt = 0;
+
+    printf("Super Admin Login\n");
+    while (attempt < maxAttempts) {
+        printf("Enter Super Admin Username: ");
+        fgets(enteredUsername, sizeof(Username), stdin);
+        Username[strcspn(Username, "\n")] = '\0'; 
+
+        printf("Enter Super Admin Password: ");
+        fgets(Password, sizeof(Password), stdin);
+        Password[strcspn(Password, "\n")] = '\0'; 
+
+        if (strcmp(Username, superAdminUsername) == 0 && strcmp(Password, superAdminPassword) == 0) {
+            printf("Access granted!\n");
+            return; 
+        } else {
+            printf("Invalid username or password. Try again.\n");
+            attempt++;
+        }
+    }
+
+    printf("Too many failed attempts. Access denied.\n");
+    exit(1); // Exit the program for security reasons
+}
+
+// void addAdminAccount(){
+//     if(!verifySuperAdminLogin){
+//         printf("not a super admin\n");
+//         return;
+//     }
+//     ensureFileExists("admin_accounts.txt");
+//     FILE *file = fopen("admin_accounts.txt", "a");
+//     char username[50], password[50];
+//     printf("Enter admin username: ");
+//     fgets(username, sizeof(username), stdin);
+//     username[strcspn(username, "\n")] = '\0';
+//     printf("Enter admin password: ");
+//     fgets(password, sizeof(password), stdin);
+//     password[strcspn(password, "\n")] = '\0';
+//     fprintf(file, "%s %s\n", username, password);
+//     fclose(file);
+// }
+
+void addPassengerAccount(){
+    ensureFileExists("passenger_accounts.txt");
+    FILE *file = fopen("passenger_accounts.txt", "a");
+    char username[50], password[50];
+    printf("Enter passenger username:");
+    fgets(username, sizeof(username), stdin);
+    username[strcspn(username, "\n")] = '\0';
+    printf("Enter passenger password: ");
+    fgets(password, sizeof(password), stdin);
+    password[strcspn(password, "\n")] = '\0';
+    fprintf(file, "%s %s\n", username, password);
+    fclose(file);
+}
+
+void verifyPassengerAccount() {
+    char Username[50], Password[50];
+    int attempt = 0;
+
+    FILE *file = fopen("passenger_accounts.txt", "r"); 
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    while (attempt < 3) {
+        printf("Enter passenger username: ");
+        fgets(Username, sizeof(Username), stdin);
+        Username[strcspn(Username, "\n")] = '\0';  
+
+        printf("Enter passenger password: ");
+        fgets(Password, sizeof(Password), stdin);
+        Password[strcspn(Password, "\n")] = '\0';  
+
+        char line[100];
+        int loginSuccessful = 0;  
+
+        while (fgets(line, sizeof(line), file)) {
+            char storedUsername[50], storedPassword[50];
+            sscanf(line, "%s %s", storedUsername, storedPassword);
+
+            if (strcmp(Username, storedUsername) == 0 && strcmp(Password, storedPassword) == 0) {
+                printf("Login successful.\n");
+                loginSuccessful = 1;
+                break;
+            }
+        }
+
+        if (loginSuccessful) {
+            break;  
+        } else {
+            printf("Invalid username or password. Try again.\n");
+        }
+
+        fseek(file, 0, SEEK_SET);  
+        attempt++;
+    }
+
+    fclose(file); 
+}
+
 
 int main() {
     int choice;
     char user[20];
-    ensureFileExists("admin_passwords.txt");
+   
+   start();
+   
+   while (1) {
+    //ensureFileExists("admin_accounts.txt");
+    ensureFileExists("passenger_accounts.txt");
     ensureFileExists("destinations.txt");
     ensureFileExists("bookings.txt");
     ensureFileExists("canceled_flights.txt");
 
+   
     printf("All necessary files are ready.\n");
     
     printf("Are you an admin or a passenger? ");
     fgets(user, sizeof(user), stdin);
     user[strcspn(user, "\n")] = '\0';
     
+    if(strcmp(user, "admin") == 0){
+        verifySuperAdmin();
+    }else if(strcmp(user, "passenger") == 0){
+        verifyPassengerAccount();
+    }
     
     choiceMenu();
     scanf("%d", &choice);
@@ -217,4 +337,5 @@ int main() {
 			}
         }while (choice != 5);
     }
+}
 }
