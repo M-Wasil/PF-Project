@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_BOOKINGS 50
+#define MAX_USERS 50
 #define MAX_FLIGHTS 20
 #define superAdminUsername "superadmin"
 #define superAdminPassword "S@fep@ssw0rd!"
@@ -47,7 +49,6 @@ Flight flights[MAX_FLIGHTS];
 Booking bookings[MAX_BOOKINGS];
 User users[MAX_USERS];
 
-Flight flights[MAX_FLIGHTS];
 int flightCount = 0;
 
 void headMessage(const char *title)
@@ -118,6 +119,13 @@ void printFlightDetails(Flight *flight) {
     getchar();  
 }
 
+void clearInputBuffer() {
+    int c;
+    // Consume all characters left in the input buffer until a newline or EOF is found.
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
+
 void ensureFileExists(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
@@ -135,9 +143,7 @@ void ensureFileExists(const char *filename) {
 }
 
 
-void clearInputBuffer() {
-    while (getchar() != '\n'); 
-}
+
 
 void choiceMenu(){
 	printf("\n--- Flight Management System ---\n");
@@ -174,17 +180,16 @@ void flight(){
     fgets(flight.arrival, sizeof(flight.arrival), stdin);
     flight.arrival[strcspn(flight.arrival, "\n")] = '\0';
 
-    printf("Enter date (DD/MM/YYYY): ");
-    fgets(flight.date, sizeof(flight.date), stdin);
-    flight.date[strcspn(flight.date, "\n")] = '\0';
-
+    printf("Enter flight date (dd mm yyyy): ");
+    scanf("%d %d %d", &flight.flightdate.day, &flight.flightdate.month, &flight.flightdate.year);
+    clearInputBuffer(); 
     printf("Enter time (HH:MM): ");
     fgets(flight.time, sizeof(flight.time), stdin);
     flight.time[strcspn(flight.time, "\n")] = '\0';
 
     printf("Enter number of available seats: ");
     scanf("%d", &flight.seatsAvailable);
-    clearInputBuffer(); 
+    
 
     flights[flightCount++] = flight;
     printf("Flight added successfully!\n");
@@ -200,7 +205,7 @@ void verifySuperAdmin() {
     printf("Super Admin Login\n");
     while (attempt < maxAttempts) {
         printf("Enter Super Admin Username: ");
-        fgets(enteredUsername, sizeof(Username), stdin);
+        fgets(Username, sizeof(Username), stdin);
         Username[strcspn(Username, "\n")] = '\0'; 
 
         printf("Enter Super Admin Password: ");
@@ -255,33 +260,32 @@ void addPassengerAccount(){
 void verifyPassengerAccount() {
     char Username[50], Password[50];
     int attempt = 0;
+    int loginSuccessful = 0;  
 
-    FILE *file = fopen("passenger_accounts.txt", "r"); 
+    FILE *file = fopen("passenger_accounts.txt", "r");
     if (file == NULL) {
-        printf("Error opening file.\n");
-        return;
+        printf("Error: Passenger accounts file not found.\n");
+        return;  
     }
 
-    while (attempt < 3) {
+    while (attempt < 3) {  
         printf("Enter passenger username: ");
         fgets(Username, sizeof(Username), stdin);
         Username[strcspn(Username, "\n")] = '\0';  
 
         printf("Enter passenger password: ");
         fgets(Password, sizeof(Password), stdin);
-        Password[strcspn(Password, "\n")] = '\0';  
+        Password[strcspn(Password, "\n")] = '\0'; 
 
         char line[100];
-        int loginSuccessful = 0;  
-
-        while (fgets(line, sizeof(line), file)) {
+        while (fgets(line, sizeof(line), file)) {  
             char storedUsername[50], storedPassword[50];
-            sscanf(line, "%s %s", storedUsername, storedPassword);
+            sscanf(line, "%s %s", storedUsername, storedPassword);  
 
             if (strcmp(Username, storedUsername) == 0 && strcmp(Password, storedPassword) == 0) {
-                printf("Login successful.\n");
+                printf("\nLogin successful. Welcome, %s!\n", Username);
                 loginSuccessful = 1;
-                break;
+                break; 
             }
         }
 
@@ -291,12 +295,17 @@ void verifyPassengerAccount() {
             printf("Invalid username or password. Try again.\n");
         }
 
-        fseek(file, 0, SEEK_SET);  
+        rewind(file);  // Rewind file pointer for the next attempt
         attempt++;
     }
 
-    fclose(file); 
+    if (!loginSuccessful) {
+        printf("\nToo many failed attempts. Access denied.\n");
+    }
+
+    fclose(file);  
 }
+
 
 void addFlight() {
     FILE *fp;
@@ -353,45 +362,45 @@ void addFlight() {
     fclose(fp);
 }
 
-void searchFlight() 
-{   FLight flightinfo;
-	int found = 1;
-	int searchflight;
-	FILE *fp = fopen("records.dat", "rb"); 
+void searchFlight() {
+    Flight flightinfo;
+    int found = 0;  
+    int searchflight;
+    FILE *fp = fopen("records.dat", "rb");
 
-	
-	if (fp == NULL)
-	{
-		printf("\n\t\t\tFile is not opened\n");
-		exit(1);
-	}
-	headMessage("SEARCH flightS");
+    if (fp == NULL) {
+        printf("\n\t\t\tFile not opened. Make sure the file exists.\n");
+        exit(1);
+    }
+    headMessage("SEARCH FLIGHTS");
+    printf("\n\n\t\t\tEnter flight number to search: ");
+    scanf("%d", &searchflight);
+    clearInputBuffer(); 
 
-	printf("\n\n\t\t\tEnter flight number to search: ");
-	scanf("%d", &searchflight);
+    while (fread(&flightinfo, sizeof(flightinfo), 1, fp) == 1){
+        if (flightinfo.flightNumber == searchflight){
+            printf("\n\t\t\tFlight Number: %d\n", flightinfo.flightNumber);
+            printf("\t\t\tDeparture: %s\n", flightinfo.departure);
+            printf("\t\t\tArrival: %s\n", flightinfo.arrival);
+            printf("\t\t\tTimings: %s\n", flightinfo.time);
+            printf("\t\t\tDate: %02d/%02d/%04d\n",
+                   flightinfo.flightdate.day,
+                   flightinfo.flightdate.month,
+                   flightinfo.flightdate.year);
+            found = 1;
+            break;
+        }
+    }
 
-	while (fread(&flightinfo, sizeof(flightinfo), 1, fp) == 1)  //fread starts from beginning (note to fellow)
-	{
-		if (flightinfo.flightNumber == searchflight) 
-		{
-			printf("\n\t\t\tflight number = %d\n", flightinfo.flightNumber);
-			printf("\t\t\tflight departure = %s\n", flightinfo.departure);
-            printf("\t\t\tflight arrival = %s\n", flightinfo.arrival);
-			printf("\t\t\t Timings = %s\n", flightinfo.time);
-			printf("\t\t\tIssue date(day/month/year) =  %d/%d/%d\n", flightinfo.flightdate.day,
-				   flightinfo.flightdate.month, flightinfo.flightdate.year);
-			found = 0;
-			break;
-		}
-	}
-	if (found == 1)
-	{
-		printf("\n\t\t\tNo Record");
-	}
-	fclose(fp);
-	printf("\n\n\n\t\t\tPress Enter to go to main menu.....");
-	getchar();
+    if (!found) {
+        printf("\n\t\t\tNo record found for flight number %d.\n", searchflight);
+    }
+
+    fclose(fp);
+    printf("\n\n\t\t\tPress Enter to go to the main menu...");
+    getchar();
 }
+
 
 
 int main() {
