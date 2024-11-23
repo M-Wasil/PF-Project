@@ -40,11 +40,6 @@ typedef struct{
     int status; 
 } Booking;
 
-// typedef struct{
-//     char username[20];             
-//     char password[20];             
-// } Admin;
-
 typedef struct{
     char username[20];             
     char password[20];             
@@ -161,46 +156,6 @@ void choiceMenu(){
     printf("Select an option: ");
 }
 
-
-// void flight(){
-// 	if (flightCount >= MAX_FLIGHTS) {
-//         printf("Flight limit reached! Cannot add more flights.\n");
-//         return;
-//     }
-
-//     Flight flight;
-    
-//     printf("Enter flight number: ");
-//     scanf("%d", &flight.flightNumber);
-//     clearInputBuffer(); 
-
-//     printf("Enter airline name: ");
-//     fgets(flight.airline, sizeof(flight.airline), stdin);
-//     flight.airline[strcspn(flight.airline, "\n")] = '\0'; 
-
-//     printf("Enter departure location: ");
-//     fgets(flight.departure, sizeof(flight.departure), stdin);
-//     flight.departure[strcspn(flight.departure, "\n")] = '\0';
-
-//     printf("Enter arrival location: ");
-//     fgets(flight.arrival, sizeof(flight.arrival), stdin);
-//     flight.arrival[strcspn(flight.arrival, "\n")] = '\0';
-
-//     printf("Enter flight date (dd mm yyyy): ");
-//     scanf("%d %d %d", &flight.flightdate.day, &flight.flightdate.month, &flight.flightdate.year);
-//     clearInputBuffer(); 
-//     printf("Enter time (HH:MM): ");
-//     fgets(flight.time, sizeof(flight.time), stdin);
-//     flight.time[strcspn(flight.time, "\n")] = '\0';
-
-//     printf("Enter number of available seats: ");
-//     scanf("%d", &flight.seatsAvailable);
-    
-
-//     flights[flightCount++] = flight;
-//     printf("Flight added successfully!\n");
-// }
-
 void verifySuperAdmin() {
     
     char Password[50];
@@ -230,24 +185,6 @@ void verifySuperAdmin() {
     printf("Too many failed attempts. Access denied.\n");
     exit(1); // Exit the program for security reasons
 }
-
-// void addAdminAccount(){
-//     if(!verifySuperAdminLogin){
-//         printf("not a super admin\n");
-//         return;
-//     }
-//     ensureFileExists("admin_accounts.txt");
-//     FILE *file = fopen("admin_accounts.txt", "a");
-//     char username[50], password[50];
-//     printf("Enter admin username: ");
-//     fgets(username, sizeof(username), stdin);
-//     username[strcspn(username, "\n")] = '\0';
-//     printf("Enter admin password: ");
-//     fgets(password, sizeof(password), stdin);
-//     password[strcspn(password, "\n")] = '\0';
-//     fprintf(file, "%s %s\n", username, password);
-//     fclose(file);
-// }
 
 
 void addPassengerAccount(){
