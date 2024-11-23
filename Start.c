@@ -334,7 +334,6 @@ void addFlight() {
 
     printf("\n\t\t\tFlight number: ");
     scanf("%d", &flightinfo.flightNumber);
-    getchar();  
 
     printf("\n\t\t\tAirline: ");
     fgets(flightinfo.airline, sizeof(flightinfo.airline), stdin);
@@ -442,6 +441,7 @@ void cancelBookings(){
         printf("\n\t\t\tFile not opened. Make sure the file exists.\n");
         exit(1);
     }
+    headMessage("Cancel Bookings");
     FILE *temp = fopen("temp.dat", "wb");
     if(temp == NULL){
         printf("\n\t\t\tFile not opened. Make sure the file exists.\n");
@@ -477,6 +477,105 @@ void cancelBookings(){
 
     printf("\n\t\t\tBooking cancellation process completed.\n");
 }
+
+void editFlightRecord() {
+    int found = 0; 
+    int editFlightNum; 
+    FILE *fp = fopen("records.dat", "rb+"); 
+
+    if (fp == NULL) {
+        printf("\n\t\t\tError: Unable to open file. Ensure the file exists.\n");
+        return;
+    }
+
+    headMessage("EDIT FLIGHTS");
+
+    printf("\n\n\t\t\tEnter the flight number to edit: ");
+    scanf("%d", &editFlightNum);
+    fflush(stdin); 
+
+    rewind(fp);
+
+    Flight flightInfo;
+
+    while (fread(&flightInfo, sizeof(flightInfo), 1, fp) == 1) {
+        if (flightInfo.flightnum == editFlightNum) { 
+            found = 1;
+            
+            printf("\n\t\t\tCurrent Flight Details:\n");
+            printf("\t\t\tFlight Number: %d\n", flightInfo.flightnum);
+            printf("\t\t\tCountry: %s\n", flightInfo.country);
+            printf("\t\t\tTiming: %d\n", flightInfo.timing);
+            printf("\t\t\tDate: %02d/%02d/%04d\n",
+                   flightInfo.flightdate.d, flightInfo.flightdate.m, flightInfo.flightdate.y);
+
+            int choice;
+            do {
+                printf("\n\t\t\tWhat would you like to edit?\n");
+                printf("\t\t\t1. Flight Number\n");
+                printf("\t\t\t2. Country\n");
+                printf("\t\t\t3. Timing\n");
+                printf("\t\t\t4. Date\n");
+                printf("\t\t\t5. Exit Editing\n");
+                printf("\t\t\tEnter your choice: ");
+                scanf("%d", &choice);
+                fflush(stdin);
+
+                switch (choice) {
+                    case 1:
+                        printf("\t\t\tNew Flight Number: ");
+                        scanf("%d", &flightInfo.flightnum);
+                        fflush(stdin);
+                        break;
+
+                    case 2:
+                        printf("\t\t\tNew Country: ");
+                        fgets(flightInfo.country, sizeof(flightInfo.country), stdin);
+                        flightInfo.country[strcspn(flightInfo.country, "\n")] = '\0'; // Remove newline
+                        break;
+
+                    case 3:
+                        printf("\t\t\tNew Timing: ");
+                        scanf("%d", &flightInfo.timing);
+                        fflush(stdin);
+                        break;
+
+                    case 4:
+                        printf("\t\t\tNew Date (dd mm yyyy): ");
+                        scanf("%d %d %d", &flightInfo.flightdate.d, &flightInfo.flightdate.m, &flightInfo.flightdate.y);
+                        fflush(stdin);
+                        break;
+
+                    case 5:
+                        printf("\t\t\tExiting editing menu.\n");
+                        break;
+
+                    default:
+                        printf("\t\t\tInvalid choice! Please try again.\n");
+                        break;
+                }
+            } while (choice != 5);
+
+            fseek(fp, -sizeof(flightInfo), SEEK_CUR);
+
+            if (fwrite(&flightInfo, sizeof(flightInfo), 1, fp) != 1) {
+                printf("\n\t\t\tError: Unable to update the record.\n");
+            } else {
+                printf("\n\t\t\tRecord updated successfully!\n");
+            }
+            break; 
+        }
+    }
+
+    if (!found) { 
+        printf("\n\t\t\tNo record found with Flight Number: %d\n", editFlightNum);
+    }
+
+    fclose(fp); 
+    printf("\n\t\t\tPress Enter to return to the main menu...");
+    getchar(); 
+}
+
 
 
 
