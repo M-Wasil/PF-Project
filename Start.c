@@ -7,6 +7,13 @@
 #define MAX_FLIGHTS 20
 #define superAdminUsername "superadmin"
 #define superAdminPassword "S@fep@ssw0rd!"
+#define maxUsernameLength 20
+
+const char l_destination[5][20] = {"LAHORE", "ISLAMABAD", "KARACHI", "PESHAWAR", "QUETTA"};
+const char i_destination[MAX_DESTINATIONS][20] = {
+    "LONDON", "BERLIN", "DUBAI", "RIYADH", "BEIJING", "PARIS", 
+    "CANBERRA", "TOKYO", "WASHINGTON", "DELHI", "ISLAMABAD"
+};
 
 typedef struct{
 	int day;
@@ -156,44 +163,44 @@ void choiceMenu(){
 }
 
 
-void flight(){
-	if (flightCount >= MAX_FLIGHTS) {
-        printf("Flight limit reached! Cannot add more flights.\n");
-        return;
-    }
+// void flight(){
+// 	if (flightCount >= MAX_FLIGHTS) {
+//         printf("Flight limit reached! Cannot add more flights.\n");
+//         return;
+//     }
 
-    Flight flight;
+//     Flight flight;
     
-    printf("Enter flight number: ");
-    scanf("%d", &flight.flightNumber);
-    clearInputBuffer(); 
+//     printf("Enter flight number: ");
+//     scanf("%d", &flight.flightNumber);
+//     clearInputBuffer(); 
 
-    printf("Enter airline name: ");
-    fgets(flight.airline, sizeof(flight.airline), stdin);
-    flight.airline[strcspn(flight.airline, "\n")] = '\0'; 
+//     printf("Enter airline name: ");
+//     fgets(flight.airline, sizeof(flight.airline), stdin);
+//     flight.airline[strcspn(flight.airline, "\n")] = '\0'; 
 
-    printf("Enter departure location: ");
-    fgets(flight.departure, sizeof(flight.departure), stdin);
-    flight.departure[strcspn(flight.departure, "\n")] = '\0';
+//     printf("Enter departure location: ");
+//     fgets(flight.departure, sizeof(flight.departure), stdin);
+//     flight.departure[strcspn(flight.departure, "\n")] = '\0';
 
-    printf("Enter arrival location: ");
-    fgets(flight.arrival, sizeof(flight.arrival), stdin);
-    flight.arrival[strcspn(flight.arrival, "\n")] = '\0';
+//     printf("Enter arrival location: ");
+//     fgets(flight.arrival, sizeof(flight.arrival), stdin);
+//     flight.arrival[strcspn(flight.arrival, "\n")] = '\0';
 
-    printf("Enter flight date (dd mm yyyy): ");
-    scanf("%d %d %d", &flight.flightdate.day, &flight.flightdate.month, &flight.flightdate.year);
-    clearInputBuffer(); 
-    printf("Enter time (HH:MM): ");
-    fgets(flight.time, sizeof(flight.time), stdin);
-    flight.time[strcspn(flight.time, "\n")] = '\0';
+//     printf("Enter flight date (dd mm yyyy): ");
+//     scanf("%d %d %d", &flight.flightdate.day, &flight.flightdate.month, &flight.flightdate.year);
+//     clearInputBuffer(); 
+//     printf("Enter time (HH:MM): ");
+//     fgets(flight.time, sizeof(flight.time), stdin);
+//     flight.time[strcspn(flight.time, "\n")] = '\0';
 
-    printf("Enter number of available seats: ");
-    scanf("%d", &flight.seatsAvailable);
+//     printf("Enter number of available seats: ");
+//     scanf("%d", &flight.seatsAvailable);
     
 
-    flights[flightCount++] = flight;
-    printf("Flight added successfully!\n");
-}
+//     flights[flightCount++] = flight;
+//     printf("Flight added successfully!\n");
+// }
 
 void verifySuperAdmin() {
     
@@ -308,10 +315,13 @@ void verifyPassengerAccount() {
 
 
 void addFlight() {
-    FILE *fp;
+    if (flightCount >= MAX_FLIGHTS) {
+        printf("Flight limit reached! Cannot add more flights.\n");
+        return;
+    }
     Flight flightinfo;  
     ensureFileExists("records.dat");
-    fp = fopen("records.dat", "ab+");
+    FILE *fp; = fopen("records.dat", "ab+");
 
     if (fp == NULL) {
         printf("\n\t\t\tFile is not opened\n");
@@ -367,6 +377,7 @@ void searchFlight() {
     int found = 0;  
     int searchflight;
     FILE *fp = fopen("records.dat", "rb");
+    // int count = 2;
 
     if (fp == NULL) {
         printf("\n\t\t\tFile not opened. Make sure the file exists.\n");
@@ -401,6 +412,74 @@ void searchFlight() {
     getchar();
 }
 
+void displayAvailableFlights() {
+    FILE *fp = fopen("records.dat", "rb");
+    if (fp == NULL) {
+        printf("\n\t\t\tFile not opened. Make sure the file exists.\n");
+        exit(1);
+    }
+
+    headMessage("AVAILABLE FLIGHTS");
+
+    Flight flight;
+    int count = 1;
+
+    while (fread(&flight, sizeof(flight), 1, fp) == 1) {
+        printf("\n\t\t\tRecord: %d", count++);
+        printf("\n\t\t\tFlight Number: %d\n", flight.flightNumber);
+        printf("\t\t\tDeparture: %s\n", flight.departure);
+        printf("\t\t\tArrival: %s\n", flight.arrival);
+        printf("\t\t\tTimings: %s\n", flight.time);
+        printf("\t\t\tDate: %02d/%02d/%04d\n", flight.flightdate.day, flight.flightdate.month, flight.flightdate.year);
+    }
+
+    fclose(fp);
+}
+
+void cancelBookings(){
+    FILE *fp = fopen("records.dat", "rb");
+    if (fp == NULL) {
+        printf("\n\t\t\tFile not opened. Make sure the file exists.\n");
+        exit(1);
+    }
+    FILE *temp = fopen("temp.dat", "wb");
+    if(temp == NULL){
+        printf("\n\t\t\tFile not opened. Make sure the file exists.\n");
+        exit(1);
+        }
+
+    FLight flight;
+    int flightno;
+    int found = 0;
+    printf("Enter the flight number to cancel the booking: "); scanf("%d", &flightno);
+    
+    while(fread(flight, sizeof(flight), 1, fp) == 1){
+        if(flight.flightNumber == flightno){
+        found = 1;
+        printf("\t\t\tThe booking has been cancelled\n");
+        continue;
+        }
+        fwrite(&flight, sizeof(flight), 1, temp);
+    }
+
+    if (!found) {
+        printf("\n\t\t\tNo flight found with number %d.\n", flightno);
+        fclose(fp);
+        fclose(temp);
+        remove(temp);
+        return;
+    }
+    fclose(fp);
+    fclose(temp);
+
+     remove("records.dat");
+     rename("temp.dat", "records.dat");
+
+    printf("\n\t\t\tBooking cancellation process completed.\n");
+}
+
+
+
 
 
 int main() {
@@ -410,37 +489,47 @@ int main() {
    start();
    
    while (1) {
-    //ensureFileExists("admin_accounts.txt");
     ensureFileExists("passenger_accounts.txt");
     ensureFileExists("destinations.txt");
     ensureFileExists("bookings.txt");
     ensureFileExists("canceled_flights.txt");
 
-   
     printf("All necessary files are ready.\n");
-    
+
     printf("Are you an admin or a passenger? ");
     fgets(user, sizeof(user), stdin);
     user[strcspn(user, "\n")] = '\0';
-    
-    if(strcmp(user, "admin") == 0){
+
+    if (strcmp(user, "admin") == 0) {
         verifySuperAdmin();
-    }else if(strcmp(user, "passenger") == 0){
+    } else if (strcmp(user, "passenger") == 0) {
         verifyPassengerAccount();
+    } else {
+        printf("Invalid role! Please enter 'admin' or 'passenger'.\n");
+        continue; // Restart the loop
     }
-    
+
     choiceMenu();
     scanf("%d", &choice);
-    if (strcmp(user, "admin") == 0){
-        do {
-        	switch(choice){
-        		case 1:
-        			flight();
-        			break;
-        		case 5:
-        			break;
-			}
-        }while (choice != 5);
+    clearInputBuffer();
+
+    if (choice == 5) {
+        printf("Exiting program. Goodbye!\n");
+        break; // Exit the loop
+    }
+
+    if (strcmp(user, "admin") == 0) {
+        switch (choice) {
+            case 1:
+                flight();
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+                break;
+        }
+    } else {
+        printf("Passenger functionality is not implemented yet.\n");
     }
 }
+
 }
