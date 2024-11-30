@@ -286,6 +286,54 @@ void addFlight()
     getchar();  
 }
 
+void displayAvailableFlights() {
+    FILE *fp = fopen("records.dat", "rb");
+    if (fp == NULL) {
+        printf("\n\t\t\tFile not opened. Make sure the file exists.\n");
+        exit(1);
+    }
+
+    headMessage("AVAILABLE FLIGHTS");
+
+    Flight flight;
+    int count = 1;
+
+    while (fread(&flight, sizeof(flight), 1, fp) == 1) {
+        printf("\n\t\t\tRecord: %d", count++);
+        printf("\n\t\t\tFlight Number: %d\n", flight.flightNumber);
+        printf("\t\t\tDeparture: %s\n", flight.departure);
+        printf("\t\t\tArrival: %s\n", flight.arrival);
+        printf("\t\t\tTimings: %s\n", flight.time);
+        printf("\t\t\tDate: %02d/%02d/%04d\n", flight.flightdate.day, flight.flightdate.month, flight.flightdate.year);
+    }
+
+    fclose(fp);
+}
+
+void displayAvailableFlights() {
+    FILE *fp = fopen("records.dat", "rb");
+    if (fp == NULL) {
+        printf("\n\t\t\tFile not opened. Make sure the file exists.\n");
+        exit(1);
+    }
+
+    headMessage("AVAILABLE FLIGHTS");
+
+    Flight flight;
+    int count = 1;
+
+    while (fread(&flight, sizeof(flight), 1, fp) == 1) {
+        printf("\n\t\t\tRecord: %d", count++);
+        printf("\n\t\t\tFlight Number: %d\n", flight.flightNumber);
+        printf("\t\t\tDeparture: %s\n", flight.departure);
+        printf("\t\t\tArrival: %s\n", flight.arrival);
+        printf("\t\t\tTimings: %s\n", flight.time);
+        printf("\t\t\tDate: %02d/%02d/%04d\n", flight.flightdate.day, flight.flightdate.month, flight.flightdate.year);
+    }
+
+    fclose(fp);
+}
+
 void cancelBookings() {
     FILE *fp = fopen("records.dat", "rb+");
     if (fp == NULL) {
