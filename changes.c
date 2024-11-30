@@ -1,14 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <conio.h>
 
 #define MAX_BOOKINGS 50
 #define MAX_USERS 50
 #define MAX_FLIGHTS 20
 #define MAX_DESTINATIONS 10
 #define superAdminUsername "superadmin"
-#define superAdminPassword "S@fep@ssw0rd!"
+#define superAdminPassword "S"
 #define maxUsernameLength 20
 
 const char l_destination[5][20] = {"LAHORE", "ISLAMABAD", "KARACHI", "PESHAWAR", "QUETTA"};
@@ -24,7 +23,7 @@ typedef struct{
 } date;
 
 typedef struct {
-    int flightNumber;
+    char flightNumber[10];
     char airline[50];
     char departure[50];
     char arrival[50];
@@ -35,7 +34,7 @@ typedef struct {
 
 typedef struct{
     int bookingID;                 
-    int flightNumber;              
+    char flightNumber [20];
     char passengerName[50];        
     char contactInfo[50];          
     int seatNumber;                
@@ -55,8 +54,7 @@ User users[MAX_USERS];
 int flightCount = 0;
 //Default
 
-void headMessage(const char *title)
-{
+void headMessage(const char *title) {
     system("cls");
     printf("\t\t\t###########################################################################");
     printf("\n\t\t\t############                                                   ############");
@@ -68,8 +66,7 @@ void headMessage(const char *title)
     printf("\n\t\t\t----------------------------------------------------------------------------");
 }
 
-void start()
-{
+void start() {
     headMessage("PF PROJECT");
     printf("\n\n\n\n\n");
     printf("\n\t\t\t  ********************\n");
@@ -77,12 +74,12 @@ void start()
     printf("\n\t\t\t        =                 WELCOME                   =");
     printf("\n\t\t\t        =                   TO                      =");
     printf("\n\t\t\t        =                 FLIGHT                    =");
-    printf("\n\t\t\t        =               MANAGEMENT                  ="); 
+    printf("\n\t\t\t        =               MANAGEMENT                  =");
     printf("\n\t\t\t        =                 SYSTEM                    =");
     printf("\n\t\t\t        =============================================");
     printf("\n\n\t\t\t  ********************\n");
     printf("\n\n\n\t\t\t Press Enter to continue.....");
-    getch(); 
+    getch();
 }
 
 void goodbye() {
@@ -112,7 +109,7 @@ void goodbye() {
 }
 
 void printFlightDetails(Flight *flight) {
-    printf("\t\t\tFlight Number: %d\n", flight->flightNumber);
+    printf("\t\t\tFlight Number: %s\n", flight->flightNumber);
     printf("\t\t\tAirline: %s\n", flight->airline);
     printf("\t\t\tDeparture: %s\n", flight->departure);
     printf("\t\t\tArrival: %s\n", flight->arrival);
@@ -120,20 +117,17 @@ void printFlightDetails(Flight *flight) {
     printf("\t\t\tSeats Available: %d\n", flight->seatsAvailable);
     printf("\t\t\tFlight Date: %02d/%02d/%04d\n", flight->flightdate.day, flight->flightdate.month, flight->flightdate.year);
     printf("press enter to continue\n");
-    getchar();  
+    getchar();
 }
 
 void clearInputBuffer() {
     int c;
-    // Consume all characters left in the input buffer until a newline or EOF is found.
     while ((c = getchar()) != '\n' && c != EOF);
 }
-
 
 void ensureFileExists(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
-        
         file = fopen(filename, "w");
         if (file != NULL) {
             printf("File '%s' created successfully.\n", filename);
@@ -141,13 +135,11 @@ void ensureFileExists(const char *filename) {
             printf("Error creating file '%s'.\n", filename);
         }
     } else {
-
         fclose(file);
     }
 }
 
-//MAIN
-void choiceMenu(){
+void choiceMenu() {
     printf("\n--- Flight Management System ---\n");
     printf("1. Add Flight\n");
     printf("2. Display Flights\n");
@@ -156,10 +148,8 @@ void choiceMenu(){
     printf("5. Exit\n");
     printf("Select an option: ");
 }
-//Admin Section
 
 int verifySuperAdmin() {
-    
     char Password[50];
     char Username[50];
     int maxAttempts = 3;
@@ -169,55 +159,28 @@ int verifySuperAdmin() {
     while (attempt < maxAttempts) {
         printf("Enter Super Admin Username: ");
         fgets(Username, sizeof(Username), stdin);
-        Username[strcspn(Username, "\n")] = '\0'; 
+        Username[strcspn(Username, "\n")] = '\0';
 
         printf("Enter Super Admin Password: ");
         fgets(Password, sizeof(Password), stdin);
-        Password[strcspn(Password, "\n")] = '\0'; 
+        Password[strcspn(Password, "\n")] = '\0';
 
         if (strcmp(Username, superAdminUsername) == 0 && strcmp(Password, superAdminPassword) == 0) {
             printf("Access granted!\n");
-            return 1; 
-        } else {
-            printf("Invalid username or password. Try again.\n");
-            attempt++;
+            return 1;
         }
+        printf("Invalid Username or Password. You have %d attempts left.\n", maxAttempts - attempt - 1);
+        attempt++;
     }
-
-    printf("Too many failed attempts. Access denied.\n");
+    printf("Access denied.\n");
     return 0;
-}
-
-void displayAvailableFlights() {
-    FILE *fp = fopen("records.dat", "rb");
-    if (fp == NULL) {
-        printf("\n\t\t\tFile not opened. Make sure the file exists.\n");
-        exit(1);
-    }
-
-    headMessage("AVAILABLE FLIGHTS");
-
-    Flight flight;
-    int count = 1;
-
-    while (fread(&flight, sizeof(flight), 1, fp) == 1) {
-        printf("\n\t\t\tRecord: %d", count++);
-        printf("\n\t\t\tFlight Number: %d\n", flight.flightNumber);
-        printf("\t\t\tDeparture: %s\n", flight.departure);
-        printf("\t\t\tArrival: %s\n", flight.arrival);
-        printf("\t\t\tTimings: %s\n", flight.time);
-        printf("\t\t\tDate: %02d/%02d/%04d\n", flight.flightdate.day, flight.flightdate.month, flight.flightdate.year);
-    }
-
-    fclose(fp);
 }
 
 void searchFlight() {
     Flight flightinfo;
     int found = 0;  
-    int searchflight;
+    char search [20];
     FILE *fp = fopen("records.dat", "rb");
-    // int count = 2;
 
     if (fp == NULL) {
         printf("\n\t\t\tFile not opened. Make sure the file exists.\n");
@@ -225,26 +188,23 @@ void searchFlight() {
     }
     headMessage("SEARCH FLIGHTS");
     printf("\n\n\t\t\tEnter flight number to search: ");
-    scanf("%d", &searchflight);
-    clearInputBuffer(); 
+    fgets(search,sizeof(search),stdin);
+	search[strcspn(search,"\n")]='\0';
 
     while (fread(&flightinfo, sizeof(flightinfo), 1, fp) == 1){
-        if (flightinfo.flightNumber == searchflight){
-            printf("\n\t\t\tFlight Number: %d\n", flightinfo.flightNumber);
+        if (strcmp(flightinfo.flightNumber,search)==0){
+            printf("\n\t\t\tFlight Number: %s\n", flightinfo.flightNumber);
             printf("\t\t\tDeparture: %s\n", flightinfo.departure);
             printf("\t\t\tArrival: %s\n", flightinfo.arrival);
             printf("\t\t\tTimings: %s\n", flightinfo.time);
-            printf("\t\t\tDate: %02d/%02d/%04d\n",
-                   flightinfo.flightdate.day,
-                   flightinfo.flightdate.month,
-                   flightinfo.flightdate.year);
+            printf("\t\t\tDate: %02d/%02d/%04d\n",flightinfo.flightdate.day,flightinfo.flightdate.month,flightinfo.flightdate.year);
             found = 1;
             break;
         }
     }
 
     if (!found) {
-        printf("\n\t\t\tNo record found for flight number %d.\n", searchflight);
+        printf("\n\t\t\tNo record found for flight number %d.\n", search);
     }
 
     fclose(fp);
@@ -252,8 +212,30 @@ void searchFlight() {
     getchar();
 }
 
-void addFlight()
-{
+void displayAvailableFlights() {
+    FILE *fp = fopen("records.dat", "rb+");
+    if (fp == NULL) {
+        printf("\n\t\t\tFile not opened. Make sure the file exists.\n");
+        exit(1);
+    }
+
+    Flight flight;
+    int count = 1;
+
+    while (fread(&flight, sizeof(Flight), 1, fp) == 1) {
+        printf("\n\tRecord: %d", count++);
+        printf("\n\tFlight Number: %s", flight.flightNumber);
+        printf("\n\tDeparture: %s", flight.departure);
+        printf("\n\tArrival: %s", flight.arrival);
+        printf("\n\tTime: %s", flight.time);
+        printf("\n\tDate: %02d/%02d/%04d", flight.flightdate.day, flight.flightdate.month, flight.flightdate.year);
+        printf("\n\tSeats Available: %d\n", flight.seatsAvailable);
+    }
+    fclose(fp);
+}
+
+
+void addFlight(){
     FILE *fp = fopen("records.dat", "ab+");
     if (fp == NULL) { 
         printf("\n\t\t\tFile is not opened\n");
@@ -262,8 +244,8 @@ void addFlight()
 
     Flight flight;
     printf("\nEnter Flight Number: ");
-    scanf("%d", &flight.flightNumber);
-    getchar();  
+    fgets(flight.flightNumber, sizeof(flight.flightNumber), stdin);
+    flight.flightNumber[strcspn(flight.flightNumber, "\n")] = '\0';  
     printf("\nEnter Airline Name: ");
     fgets(flight.airline, sizeof(flight.airline), stdin);
     flight.airline[strcspn(flight.airline, "\n")] = '\0';
@@ -287,14 +269,13 @@ void addFlight()
     printf("\nFlight added successfully.\n");
     getchar();  
 }
-//Passenger Section
 
 void passengerMenu(){
-	printf("----Passenger Menu----\n\n");
-	printf("1.Book a flight\n");
-	printf("2.Cancel booking\n");
-	printf("3.Change login credentials\n");
-	printf("4.Exit\n");
+    printf("----Passenger Menu----\n\n");
+    printf("1.Book a flight\n");
+    printf("2.Cancel booking\n");
+    printf("3.Change login credentials\n");
+    printf("4.Exit\n");
 }
 
 void addPassengerAccount() {
@@ -358,20 +339,58 @@ int verifyPassengerAccount(char *username) {
     return 0;
 }
 
-void booking(){
-	FILE *fptr=fopen("bookings.txt","r");
-	if (fptr == NULL) {
+void booking() {
+    Flight f;
+    FILE *fptr = fopen("records.dat", "r+b");
+    if (fptr == NULL) {
         printf("\n\t\t\tError opening file.\n");
         return;
     }
-    char dest[50],dept[50];
+
+    char dest[50], dept[50];
+    int seats, day, month, year;
     printf("Enter your destination: ");
-    fgets(dest,sizeof(dest),stdin);
-    dest[strcspn(dest,"\n")]='\0';
+    fgets(dest, sizeof(dest), stdin);
+    dest[strcspn(dest, "\n")] = '\0';
     printf("Enter your departure: ");
-    fgets(dept,sizeof(dept),stdin);
-    dept[strcspn(dept,"\n")]='\0';
+    fgets(dept, sizeof(dept), stdin);
+    dept[strcspn(dept, "\n")] = '\0';
+    printf("When do you want to fly with us (dd/mm/yyyy): ");
+    scanf("%d/%d/%d", &day, &month, &year);
+
+    int found = 0;
+    while (fread(&f, sizeof(Flight), 1, fptr) == 1) {
+ 
+        if (strcmp(f.arrival, dest) == 0 && strcmp(f.departure, dept) == 0 && 
+            f.flightdate.day == day && f.flightdate.month == month && f.flightdate.year == year) {
+            
+            printf("Flight found!\n");
+            printf("Available seats: %d\n", f.seatsAvailable);
+            printf("How many seats would you like to book? ");
+            scanf("%d", &seats);
+
+            if (seats <= f.seatsAvailable) {
+                f.seatsAvailable -= seats;
+                printf("Booking successful! %d seats booked.\n", seats);
+
+                fseek(fptr, -sizeof(Flight), SEEK_CUR);
+                fwrite(&f, sizeof(Flight), 1, fptr);
+
+                found = 1;
+                break;
+            } else {
+                printf("Not enough seats available. Please try again.\n");
+                found = 1;
+                break;
+            }
+        }
+    }
+    if (!found) {
+        printf("No matching flight found.\n");
+    }
+    fclose(fptr);
 }
+
 
 void cancelBookings(){
     FILE *fptr = fopen("records.dat", "rb+");
@@ -388,14 +407,15 @@ void cancelBookings(){
     }
 
     Flight flight;
-    int flightNumberToCancel;
+    char cancel[20];
 
     printf("Enter flight number to cancel: ");
-    scanf("%d", &flightNumberToCancel);
+    fgets(cancel, sizeof(cancel), stdin);
+    cancel[strcspn(cancel, "\n")] = '\0';
 
     int found = 0;
     while (fread(&flight, sizeof(Flight), 1, fptr)) {
-        if (flight.flightNumber != flightNumberToCancel) {
+        if (strcmp(flight.flightNumber, cancel) != 0) {
             fwrite(&flight, sizeof(Flight), 1, temp); 
         } else {
             found = 1; 
@@ -408,16 +428,15 @@ void cancelBookings(){
     if (found) {
         remove("records.dat");
         rename("temp.dat", "records.dat");
-        printf("\nFlight with number %d has been canceled.\n", flightNumberToCancel);
+        printf("\nFlight with number %s has been canceled.\n", cancel);
     } else {
         printf("\nFlight not found.\n");
     }
 }
 
-
 void editFlightRecord() {
     int found = 0; 
-    int editFlightNum; 
+    char edit[20]; 
     FILE *fp = fopen("records.dat", "rb+"); 
 
     if (fp == NULL) {
@@ -428,7 +447,7 @@ void editFlightRecord() {
     headMessage("EDIT FLIGHTS");
 
     printf("\n\n\t\t\tEnter the flight number to edit: ");
-    scanf("%d", &editFlightNum);
+    scanf("%s", edit);
     fflush(stdin); 
 
     rewind(fp);
@@ -436,23 +455,22 @@ void editFlightRecord() {
     Flight flightInfo;
 
     while (fread(&flightInfo, sizeof(flightInfo), 1, fp) == 1) {
-        if (flightInfo.flightNumber == editFlightNum) { 
+        if (strcmp(flightInfo.flightNumber, edit) == 0) { 
             found = 1;
             
             printf("\n\t\t\tCurrent Flight Details:\n");
-            printf("\t\t\tFlight Number: %d\n", flightInfo. flightNumber);
-            printf("\t\t\tDerarture: %s\n", flightInfo.departure);
+            printf("\t\t\tFlight Number: %s\n", flightInfo.flightNumber);
+            printf("\t\t\tDeparture: %s\n", flightInfo.departure);
             printf("\t\t\tArrival: %s\n", flightInfo.arrival);
-            printf("\t\t\tTiming: %d\n", flightInfo.time);
-            printf("\t\t\tDate: %02d/%02d/%04d\n",
-                   flightInfo.flightdate.day, flightInfo.flightdate.month, flightInfo.flightdate.year);
+            printf("\t\t\tTiming: %s\n", flightInfo.time);
+            printf("\t\t\tDate: %02d/%02d/%04d\n", flightInfo.flightdate.day, flightInfo.flightdate.month, flightInfo.flightdate.year);
 
             int choice;
             do {
                 printf("\n\t\t\tWhat would you like to edit?\n");
                 printf("\t\t\t1. Flight Number\n");
-                printf("\t\t\t2.Departure Country\n");
-                printf("\t\t\t3.Arrival Country\n");
+                printf("\t\t\t2. Departure City\n");
+                printf("\t\t\t3. Arrival City\n");
                 printf("\t\t\t4. Timing\n");
                 printf("\t\t\t5. Date\n");
                 printf("\t\t\t6. Exit Editing\n");
@@ -463,25 +481,25 @@ void editFlightRecord() {
                 switch (choice) {
                     case 1:
                         printf("\t\t\tNew Flight Number: ");
-                        scanf("%d", &flightInfo.flightNumber);
-                        fflush(stdin);
+                        fgets(flightInfo.flightNumber, sizeof(flightInfo.flightNumber), stdin);
+                        flightInfo.flightNumber[strcspn(flightInfo.flightNumber, "\n")] = '\0';
                         break;
 
                     case 2:
-                        printf("\t\t\tNew Departure Country: ");
+                        printf("\t\t\tNew Departure City: ");
                         fgets(flightInfo.departure, sizeof(flightInfo.departure), stdin);
                         flightInfo.departure[strcspn(flightInfo.departure, "\n")] = '\0';
                         break;
                     case 3:
-                        printf("\t\t\tNew Arrival Country: ");
+                        printf("\t\t\tNew Arrival City: ");
                         fgets(flightInfo.arrival, sizeof(flightInfo.arrival), stdin);
-                        flightInfo.departure[strcspn(flightInfo.departure, "\n")] = '\0';
+                        flightInfo.arrival[strcspn(flightInfo.arrival, "\n")] = '\0';
                         break;
 
                     case 4:
                         printf("\t\t\tNew Timing: ");
-                        scanf("%d", &flightInfo.time);
-                        fflush(stdin);
+                        fgets(flightInfo.time, sizeof(flightInfo.time), stdin);
+                        flightInfo.time[strcspn(flightInfo.time, "\n")] = '\0';
                         break;
 
                     case 5:
@@ -498,26 +516,24 @@ void editFlightRecord() {
                         printf("\t\t\tInvalid choice! Please try again.\n");
                         break;
                 }
-            } while (choice != 5);
+            } while (choice != 6);
 
             fseek(fp, sizeof(flightInfo), SEEK_CUR);
 
             if (fwrite(&flightInfo, sizeof(flightInfo), 1, fp) != 1) {
-                printf("\n\t\t\tError: Unable to update the record.\n");
+                printf("\t\t\tError updating record.\n");
             } else {
-                printf("\n\t\t\tRecord updated successfully!\n");
+                printf("\t\t\tRecord updated successfully.\n");
             }
-            break; 
+            break;
         }
     }
 
-    if (!found) { 
-        printf("\n\t\t\tNo record found with Flight Number: %d\n", editFlightNum);
+    if (!found) {
+        printf("\n\t\t\tFlight number %s not found.\n", edit);
     }
 
-    fclose(fp); 
-    printf("\n\t\t\tPress Enter to return to the main menu...");
-    getchar(); 
+    fclose(fp);
 }
 
 void changeAccountDetails(){
@@ -564,7 +580,7 @@ void changeAccountDetails(){
             }
 
             // Now update the file with the modified account info
-            fseek(fp, sizeof(accountInfo), SEEK_CUR);  // Move back to the start of the current record
+            fseek(fp, -sizeof(accountInfo), SEEK_CUR);  // Move back to the start of the current record
             fwrite(&accountInfo, sizeof(accountInfo), 1, fp);  // Write the modified record
 
             printf("Account details updated successfully.\n");
@@ -579,8 +595,6 @@ void changeAccountDetails(){
     fclose(fp);
 }
 
-
-
 int main() {
     int choice;
     int isLoggedIn = 0;  
@@ -588,7 +602,7 @@ int main() {
 
     start();
 
-    do{
+    do {
         printf("\n--- Main Menu ---\n");
         printf("1. Super Admin Login\n");
         printf("2. Passenger Login\n");
@@ -600,72 +614,68 @@ int main() {
 
         switch (choice) {
             case 1:
-                isLoggedIn=verifySuperAdmin();
-                if (isLoggedIn){
-                	while(isLoggedIn==1){
-                		choiceMenu();
-                		scanf("%d",&choice);
-                		clearInputBuffer();
-                		switch (choice){
-                			case 1:
-                        		addFlight();  
-                        		break;
-                        	case 2:
-                        		displayAvailableFlights();  
-                        		break;
-
-                    		case 3:
-                        		searchFlight();  
-                        		break;
-
-                    		case 4:
-                        		printf("Delete flight functionality is under development.\n");
-                       		    break;
-
-                    		case 5:
-                        		printf("Exiting the admin system...\n");
-                        		isLoggedIn=0;
-                        		break; 
-
-                    		default:
-                        		printf("Invalid option, please try again.\n");
-                        		break;
-                		}
-					}
-				}
+                isLoggedIn = verifySuperAdmin();
+                if (isLoggedIn) {
+                    while (isLoggedIn == 1) {
+                        choiceMenu();
+                        scanf("%d", &choice);
+                        clearInputBuffer();
+                        switch (choice) {
+                            case 1:
+                                addFlight();  
+                                break;
+                            case 2:
+                                displayAvailableFlights();  
+                                break;
+                            case 3:
+                                searchFlight();  
+                                break;
+                            case 4:
+                                printf("Delete flight functionality is under development.\n");
+                                break;
+                            case 5:
+                                printf("Exiting the admin system...\n");
+                                isLoggedIn = 0;
+                                break;
+                            default:
+                                printf("Invalid option, please try again.\n");
+                                break;
+                        }
+                    }
+                }
                 break;
 
             case 2:  
-                isLoggedIn=verifyPassengerAccount(username);
-                if (isLoggedIn){
-                	while(isLoggedIn==1){
-                		passengerMenu();
-                		scanf("%d",&choice);
-                		clearInputBuffer();
-                		switch(choice){
-                			case 1:
-                				booking();
-                				break;
-                			case 2:
-                				cancelBookings();
-                				break;
-                			case 3:
-                				changeAccountDetails();
-                				break;
-                			case 4:
-                				printf("Exiting the passenger system...\n");
-                        		isLoggedIn=0;
-                        		break; 
-                    		default:
-                        		printf("Invalid option, please try again.\n");
-                        		break;
-						}
-                	}
-				}
+                isLoggedIn = verifyPassengerAccount(username);
+                if (isLoggedIn) {
+                    while (isLoggedIn == 1) {
+                        passengerMenu();
+                        scanf("%d", &choice);
+                        clearInputBuffer();
+                        switch (choice) {
+                            case 1:
+                                booking();
+                                break;
+                            case 2:
+                                cancelBookings();
+                                break;
+                            case 3:
+                                changeAccountDetails();
+                                break;
+                            case 4:
+                                printf("Exiting the passenger system...\n");
+                                isLoggedIn = 0;
+                                break; 
+                            default:
+                                printf("Invalid option, please try again.\n");
+                                break;
+                        }
+                    }
+                }
                 break;
-			case 3:
-				addPassengerAccount();
-				break;
+            case 3:
+                addPassengerAccount();
+                break;
             case 4:
                 goodbye();  
                 exit(0); 
@@ -674,7 +684,8 @@ int main() {
                 printf("Invalid choice, please try again.\n");
                 break;
         }
-    }while(1);
+    } while (1);
 
     return 0;
 }
+
