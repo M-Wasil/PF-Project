@@ -33,12 +33,13 @@ typedef struct {
 } Flight;
 
 typedef struct{
-    int bookingID;                 
+    int bookingID;
     char flightNumber [20];
-    char passengerName[50];        
-    char contactInfo[50];          
-    int seatNumber;                
-    int status; 
+    char passengerName[50];
+    char departure[50];
+    char arrival[50];
+    int seatsBooked;
+    date flightdate;
 } Booking;
 
 typedef struct{
@@ -275,7 +276,8 @@ void passengerMenu(){
     printf("1.Book a flight\n");
     printf("2.Cancel booking\n");
     printf("3.Change login credentials\n");
-    printf("4.Exit\n");
+    printf("4.View booked flights\n");
+    printf("5.Exit\n");
 }
 
 void addPassengerAccount() {
@@ -339,7 +341,7 @@ int verifyPassengerAccount(char *username) {
     return 0;
 }
 
-void booking() {
+void booking(){
     Flight f;
     FILE *fptr = fopen("records.dat", "r+b");
     if (fptr == NULL) {
@@ -347,8 +349,11 @@ void booking() {
         return;
     }
 
-    char dest[50], dept[50];
+    char dest[50], dept[50], passengerName[100];
     int seats, day, month, year;
+    printf("Enter your name: ");
+    fgets(passengerName, sizeof(passengerName), stdin);
+    passengerName[strcspn(passengerName, "\n")] = '\0';
     printf("Enter your destination: ");
     fgets(dest, sizeof(dest), stdin);
     dest[strcspn(dest, "\n")] = '\0';
@@ -359,23 +364,48 @@ void booking() {
     scanf("%d/%d/%d", &day, &month, &year);
 
     int found = 0;
-    while (fread(&f, sizeof(Flight), 1, fptr) == 1) {
- 
-        if (strcmp(f.arrival, dest) == 0 && strcmp(f.departure, dept) == 0 && 
-            f.flightdate.day == day && f.flightdate.month == month && f.flightdate.year == year) {
-            
+    while (fread(&f, sizeof(Flight), 1, fptr) == 1){
+        if (strcmp(f.arrival, dest) == 0 && strcmp(f.departure, dept) == 0 && f.flightdate.day == day && f.flightdate.month == month && f.flightdate.year == year){
             printf("Flight found!\n");
             printf("Available seats: %d\n", f.seatsAvailable);
             printf("How many seats would you like to book? ");
             scanf("%d", &seats);
-
             if (seats <= f.seatsAvailable) {
                 f.seatsAvailable -= seats;
                 printf("Booking successful! %d seats booked.\n", seats);
+                
+                srand(time(NULL));
+                int bookingNumber = rand() % 1000000;
+
+                Booking newBooking;
+                newBooking.bookingID = bookingNumber;
+                strcpy(newBooking.passengerName, passengerName);
+                strcpy(newBooking.flightNumber, f.flightNumber);
+                strcpy(newBooking.departure, f.departure);
+                strcpy(newBooking.arrival, f.arrival);
+                newBooking.flightdate = f.flightdate;
+                newBooking.seatsBooked = seats;
+
+                FILE *bookingFile = fopen("bookings.txt", "ab");
+                if (bookingFile == NULL) {
+                    printf("\nError opening booking file.\n");
+                    fclose(fptr);
+                    return;
+                }
+                fwrite(&newBooking, sizeof(Booking), 1, bookingFile);
+                fclose(bookingFile);
+
+                printf("\nBooking Details:\n");
+                printf("Booking ID: %d\n", newBooking.bookingID);
+                printf("Passenger Name: %s\n", newBooking.passengerName);
+                printf("Flight Number: %s\n", newBooking.flightNumber);
+                printf("Departure: %s\n", newBooking.departure);
+                printf("Arrival: %s\n", newBooking.arrival);
+                printf("Date: %02d/%02d/%04d\n", newBooking.flightdate.day, newBooking.flightdate.month, newBooking.flightdate.year);
+                printf("Seats Booked: %d\n", newBooking.seatsBooked);
 
                 fseek(fptr, -sizeof(Flight), SEEK_CUR);
                 fwrite(&f, sizeof(Flight), 1, fptr);
-
                 found = 1;
                 break;
             } else {
@@ -391,8 +421,7 @@ void booking() {
     fclose(fptr);
 }
 
-
-void cancelBookings(){
+void cancelBookings() {
     FILE *fptr = fopen("records.dat", "rb+");
     if (fptr == NULL) {
         printf("\n\t\t\tError opening file.\n");
@@ -406,31 +435,89 @@ void cancelBookings(){
         return;
     }
 
+    FILE *bookingFile = fopen("bookings.txt", "r+b");
+    if (bookingFile == NULL) {
+        printf("\n\t\t\tError opening booking file.\n");
+        fclose(fptr);
+        fclose(temp);
+        return;
+    }
+
     Flight flight;
-    char cancel[20];
+    Booking booking;
+    int bookingId, foundFlight = 0, foundBooking = 0;
 
-    printf("Enter flight number to cancel: ");
-    fgets(cancel, sizeof(cancel), stdin);
-    cancel[strcspn(cancel, "\n")] = '\0';
+    printf("Enter booking ID to cancel: ");
+    scanf("%d", &bookingId);
+    getchar();
 
-    int found = 0;
-    while (fread(&flight, sizeof(Flight), 1, fptr)) {
-        if (strcmp(flight.flightNumber, cancel) != 0) {
-            fwrite(&flight, sizeof(Flight), 1, temp); 
-        } else {
-            found = 1; 
+    while (fread(&booking, sizeof(Booking), 1, bookingFile)) {
+        if (booking.bookingID == bookingId) {
+            foundBooking = 1;
+            printf("\nBooking found for %s on flight %s, %d seats booked.\n", 
+                    booking.passengerName, booking.flightNumber, booking.seatsBooked);
+            break;
         }
+    }
+
+    if (!foundBooking) {
+        printf("Booking ID %d not found.\n", bookingId);
+        fclose(fptr);
+        fclose(temp);
+        fclose(bookingFile);
+        return;
+    }
+
+    fseek(fptr, 0, SEEK_SET);
+
+    while (fread(&flight, sizeof(Flight), 1, fptr)) {
+        if (strcmp(flight.flightNumber, booking.flightNumber) == 0) {
+            foundFlight = 1;
+            flight.seatsAvailable += booking.seatsBooked;
+
+            fseek(fptr, -sizeof(Flight), SEEK_CUR);
+            fwrite(&flight, sizeof(Flight), 1, fptr);
+            printf("Seats successfully added back to the flight %s.\n", flight.flightNumber);
+            break;
+        }
+    }
+
+    if (!foundFlight) {
+        printf("Flight not found for booking ID %d.\n", bookingId);
+    }
+
+    if (foundBooking && foundFlight) {
+        FILE *tempBookingFile = fopen("tempBookings.txt", "wb");
+        if (tempBookingFile == NULL) {
+            printf("\n\t\t\tError creating temporary booking file.\n");
+            fclose(fptr);
+            fclose(temp);
+            fclose(bookingFile);
+            return;
+        }
+
+        fseek(bookingFile, 0, SEEK_SET);
+        while (fread(&booking, sizeof(Booking), 1, bookingFile)) {
+            if (booking.bookingID != bookingId) {
+                fwrite(&booking, sizeof(Booking), 1, tempBookingFile);
+            }
+        }
+
+        fclose(bookingFile);
+        fclose(tempBookingFile);
+        remove("bookings.txt");
+        rename("tempBookings.txt", "bookings.txt");
+
+        printf("Booking ID %d has been canceled and removed.\n", bookingId);
     }
 
     fclose(fptr);
     fclose(temp);
 
-    if (found) {
-        remove("records.dat");
-        rename("temp.dat", "records.dat");
-        printf("\nFlight with number %s has been canceled.\n", cancel);
+    if (foundBooking && foundFlight) {
+        printf("\nCancellation completed successfully.\n");
     } else {
-        printf("\nFlight not found.\n");
+        printf("\nCancellation failed.\n");
     }
 }
 
@@ -536,6 +623,27 @@ void editFlightRecord() {
     fclose(fp);
 }
 
+void passenger(){
+    FILE *fptr = fopen("bookings.txt", "rb");
+    if (fptr == NULL){
+        printf("Error opening file.\n");
+        return;
+    }
+    Booking booking;
+    printf("Booked Flights:\n");
+    while (fread(&booking, sizeof(Booking), 1, fptr)) {
+        printf("Booking ID: %d\n", booking.bookingID);
+        printf("Passenger Name: %s\n", booking.passengerName);
+        printf("Flight Number: %s\n", booking.flightNumber);
+        printf("Departure: %s\n", booking.departure);
+        printf("Arrival: %s\n", booking.arrival);
+        printf("Date: %02d/%02d/%04d\n", booking.flightdate.day, booking.flightdate.month, booking.flightdate.year);
+        printf("Seats Booked: %d\n", booking.seatsBooked);
+        printf("\n");
+    }
+    fclose(fptr);
+}
+
 void changeAccountDetails(){
     int choice, found = 0;
     FILE *fp = fopen("passenger_accounts.txt", "r+b");
@@ -611,7 +719,6 @@ int main() {
         printf("Select an option: ");
         scanf("%d", &choice);
         clearInputBuffer();
-
         switch (choice) {
             case 1:
                 isLoggedIn = verifySuperAdmin();
@@ -644,9 +751,8 @@ int main() {
                     }
                 }
                 break;
-
             case 2:  
-                isLoggedIn = verifyPassengerAccount(username);
+                isLoggedIn=verifyPassengerAccount(username);
                 if (isLoggedIn) {
                     while (isLoggedIn == 1) {
                         passengerMenu();
@@ -663,6 +769,9 @@ int main() {
                                 changeAccountDetails();
                                 break;
                             case 4:
+                            	passenger();
+                            	break;
+                            case 5:
                                 printf("Exiting the passenger system...\n");
                                 isLoggedIn = 0;
                                 break; 
@@ -679,7 +788,6 @@ int main() {
             case 4:
                 goodbye();  
                 exit(0); 
-
             default:
                 printf("Invalid choice, please try again.\n");
                 break;
