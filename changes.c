@@ -310,28 +310,44 @@ void displayAvailableFlights() {
     fclose(fp);
 }
 
-void displayAvailableFlights() {
+void searchFlight() {
+    Flight flightinfo;
+    int found = 0;  
+    int searchflight;
     FILE *fp = fopen("records.dat", "rb");
+    // int count = 2;
+
     if (fp == NULL) {
         printf("\n\t\t\tFile not opened. Make sure the file exists.\n");
         exit(1);
     }
+    headMessage("SEARCH FLIGHTS");
+    printf("\n\n\t\t\tEnter flight number to search: ");
+    scanf("%d", &searchflight);
+    clearInputBuffer(); 
 
-    headMessage("AVAILABLE FLIGHTS");
+    while (fread(&flightinfo, sizeof(flightinfo), 1, fp) == 1){
+        if (flightinfo.flightNumber == searchflight){
+            printf("\n\t\t\tFlight Number: %d\n", flightinfo.flightNumber);
+            printf("\t\t\tDeparture: %s\n", flightinfo.departure);
+            printf("\t\t\tArrival: %s\n", flightinfo.arrival);
+            printf("\t\t\tTimings: %s\n", flightinfo.time);
+            printf("\t\t\tDate: %02d/%02d/%04d\n",
+                   flightinfo.flightdate.day,
+                   flightinfo.flightdate.month,
+                   flightinfo.flightdate.year);
+            found = 1;
+            break;
+        }
+    }
 
-    Flight flight;
-    int count = 1;
-
-    while (fread(&flight, sizeof(flight), 1, fp) == 1) {
-        printf("\n\t\t\tRecord: %d", count++);
-        printf("\n\t\t\tFlight Number: %d\n", flight.flightNumber);
-        printf("\t\t\tDeparture: %s\n", flight.departure);
-        printf("\t\t\tArrival: %s\n", flight.arrival);
-        printf("\t\t\tTimings: %s\n", flight.time);
-        printf("\t\t\tDate: %02d/%02d/%04d\n", flight.flightdate.day, flight.flightdate.month, flight.flightdate.year);
+    if (!found) {
+        printf("\n\t\t\tNo record found for flight number %d.\n", searchflight);
     }
 
     fclose(fp);
+    printf("\n\n\t\t\tPress Enter to go to the main menu...");
+    getchar();
 }
 
 void cancelBookings() {
