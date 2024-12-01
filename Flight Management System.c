@@ -308,11 +308,11 @@ void addFlight(){
     printf("\nEnter Arrival City: ");
     fgets(flight.arrival, sizeof(flight.arrival), stdin);
     flight.arrival[strcspn(flight.arrival, "\n")] = '\0';
-    printf("\nEnter Ticket Price: ");
-    scanf("%d",&flight.price);
     printf("\nEnter Time: ");
     fgets(flight.time, sizeof(flight.time), stdin);
     flight.time[strcspn(flight.time, "\n")] = '\0';
+    printf("\nEnter Ticket Price: ");
+    scanf("%d",&flight.price);
     printf("\nEnter Number of Seats Available: ");
     scanf("%d", &flight.seatsAvailable);
     printf("\nEnter Flight Date (dd/mm/yyyy): ");
